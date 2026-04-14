@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi UTS OSKIM 2026 - Lengkap</title>
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+        .container { background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); width: 100%; max-width: 850px; padding: 40px; box-sizing: border-box; }
+        .header-title { text-align: center; color: #0d6efd; font-size: 28px; font-weight: bold; margin-bottom: 10px; }
+        .header-subtitle { text-align: center; color: #6c757d; font-size: 14px; margin-bottom: 30px; }
+        .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .btn-outline { background-color: transparent; border: 1px solid #0d6efd; color: #0d6efd; padding: 15px; border-radius: 6px; cursor: pointer; font-size: 13px; text-align: left; font-weight: 500; transition: 0.2s; height: 100%; display: flex; align-items: center; }
+        .btn-outline:hover { background-color: #f0f7ff; }
+        .btn-solid { background-color: #0d6efd; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; width: 100%; text-align: center; transition: 0.2s; }
+        .btn-solid:hover { background-color: #0b5ed7; }
+        .btn-prev { background-color: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-green { background-color: #198754 !important; width: auto !important; padding: 12px 24px; display: block; }
+        .btn-red { background-color: #dc3545 !important; width: auto !important; padding: 12px 24px; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
+        .category-title { color: #0d6efd; font-size: 18px; font-weight: bold; margin: 0; max-width: 70%; }
+        .question-counter { color: #6c757d; font-size: 14px; font-weight: 500; }
+        .progress-bar-container { width: 100%; background-color: #e9ecef; height: 6px; border-radius: 3px; margin-bottom: 25px; overflow: hidden; }
+        .progress-bar { height: 100%; background-color: #0d6efd; width: 0%; transition: width 0.3s ease; }
+        .question-box { background-color: #f0f7ff; border: 1px solid #cce3fd; border-radius: 8px; padding: 25px; font-size: 17px; margin-bottom: 20px; text-align: left; font-weight: 500; line-height: 1.6;}
+        .options-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .option-item { display: flex; align-items: flex-start; padding: 12px 15px; border: 1px solid #ced4da; border-radius: 6px; cursor: pointer; transition: 0.2s; line-height: 1.4; }
+        .option-item:hover { background-color: #f8f9fa; }
+        .option-item input { margin-right: 15px; margin-top: 3px; transform: scale(1.2); flex-shrink: 0; pointer-events: none; }
+        .option-item.selected { border-color: #0d6efd; background-color: #f0f7ff; font-weight: 600; }
+        .essay-area { width: 100%; height: 150px; padding: 15px; border-radius: 8px; border: 1px solid #ced4da; font-family: inherit; font-size: 16px; box-sizing: border-box; margin-bottom: 20px; resize: vertical; }
+        .quiz-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; gap: 10px; }
+        .review-card { border: 1px solid #cce3fd; border-radius: 8px; padding: 20px; margin-bottom: 15px; background-color: #f8fbfd; text-align: left;}
+        .wrong-pg { border-color: #f8d7da; background-color: #fff5f5; }
+        .ans-user { padding: 10px; border-radius: 4px; font-size: 14px; margin-top: 5px; background: white; border: 1px solid #eee; }
+        .ans-ref { background-color: #e8f4fd; padding: 10px; border-radius: 4px; font-size: 14px; color: #084298; margin-top: 5px; }
+        .review-badge { background-color: #e9ecef; color: #495057; font-size: 11px; padding: 3px 8px; border-radius: 4px; float: right; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="home-screen">
+    <div class="header-title">SIMULASI UTS OSKIM 2026</div>
+    <div class="header-subtitle">OS2205 Chemical Oceanography</div>
+    <div class="grid-menu" id="menu-container"></div>
+    <button class="btn-solid" style="width: 100%; margin-top: 10px;" onclick="startQuiz('Semua Topik')">Mulai Semua Topik</button>
+</div>
+
+<div class="container" id="quiz-screen" style="display: none;">
+    <div class="quiz-header">
+        <h2 class="category-title" id="current-category-text">Kategori</h2>
+        <div class="question-counter" id="question-counter">Soal 1 / 10</div>
+    </div>
+    <div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="question-box" id="question-text">...</div>
+    <div id="answer-container"></div>
+    <div class="quiz-footer">
+        <button class="btn-prev" id="btn-prev" onclick="prevQuestion()">Sebelumnya</button>
+        <button class="btn-solid btn-red" id="btn-finish-anytime" onclick="showResults()">Akhiri & Lihat Hasil</button>
+        <button class="btn-solid" id="btn-next" style="width: auto; padding: 12px 24px;" onclick="nextQuestion()">Selanjutnya</button>
+    </div>
+</div>
+
+<div class="container" id="result-screen" style="display: none;">
+    <div class="header-title" style="font-size: 24px;">Hasil Simulasi UTS</div>
+    <div class="score-card" style="border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+        <div style="display:flex; justify-content: space-between; margin-bottom: 10px;"><span>Topik:</span><span id="score-category-name" style="font-weight:bold;">...</span></div>
+        <div style="display:flex; justify-content: space-between; font-weight: bold; color: #198754; font-size: 22px;"><span>Skor Benar (PG):</span><span id="score-text-total">0/0</span></div>
+        <p style="font-size: 12px; color: #666; margin-top: 10px;">*Jawaban Essay perlu diperiksa mandiri menggunakan referensi jawaban kunci yang tersedia di bawah.</p>
+    </div>
+    <div id="review-container"></div>
+    <button class="btn-solid" onclick="location.reload()" style="width: 100%; margin-top: 20px;">Kembali ke Menu Utama</button>
+</div>
+
+<script>
+const databaseSoal = [
+    // --- KATEGORI 1: Pendahuluan Oseanografi Kimia ---
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Oseanografi kimia bersifat interdisipliner. Manakah pernyataan berikut yang paling tepat menggambarkan interaksi tersebut?", pilihan: ["Kimia mengontrol biologi melalui nutrien, namun tidak mempengaruhi sirkulasi fisik.", "Data kimia dalam sedimen tidak dapat digunakan untuk Climate Research.", "Parameter kimia seperti densitas (akibat salinitas) merupakan penggerak utama sirkulasi fisis laut.", "Oseanografi kimia hanya mempelajari unsur terlarut, bukan partikulat."], kunci_jawaban: "Parameter kimia seperti densitas (akibat salinitas) merupakan penggerak utama sirkulasi fisis laut." },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Jika klorinitas suatu sampel air laut adalah 19.2 g/kg, berapakah salinitasnya berdasarkan rumus Knudsen?", pilihan: ["34.20 ppt", "34.69 ppt", "35.00 ppt", "36.12 ppt"], kunci_jawaban: "34.69 ppt" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Teori outgassing vulkanisme menjelaskan asal mula air laut. Gas manakah yang dominan dilepaskan dan kemudian mengkondensasi menjadi samudra?", pilihan: ["CH4 dan NH3", "O2 dan N2", "Uap air (H2O) dan CO2", "SO2 dan Ar"], kunci_jawaban: "Uap air (H2O) dan CO2" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Alat sampling air laut yang dilengkapi dengan sensor konduktivitas, suhu, dan tekanan secara real-time adalah...", pilihan: ["Grab Sampler", "Rosette Niskin Bottle", "CTD (Conductivity, Temperature, Depth)", "Secchi Disk"], kunci_jawaban: "CTD (Conductivity, Temperature, Depth)" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Mengapa pengukuran salinitas menggunakan refraktometer dianggap kurang presisi dibandingkan salinometer elektrik?", pilihan: ["Karena refraktometer dipengaruhi oleh warna air.", "Karena refraktometer mengukur konduktivitas yang memiliki hubungan linear lebih kuat dengan salinitas total.", "Refraktometer hanya mengukur kadar garam NaCl, bukan total salt.", "Indeks bias tidak berubah secara signifikan terhadap salinitas."], kunci_jawaban: "Karena refraktometer mengukur konduktivitas yang memiliki hubungan linear lebih kuat dengan salinitas total." },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Grab Sampler merupakan alat yang digunakan secara spesifik untuk...", pilihan: ["Mengambil air di zona afotik", "Menentukan kecerahan air", "Mengambil sampel sedimen permukaan dasar laut", "Mengukur kecepatan arus dasar"], kunci_jawaban: "Mengambil sampel sedimen permukaan dasar laut" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Urutan kelimpahan kation utama dalam air laut dari yang paling besar ke kecil adalah...", pilihan: ["Na+ > Mg2+ > Ca2+ > K+", "Na+ > K+ > Mg2+ > Ca2+", "Mg2+ > Na+ > Ca2+ > K+", "Ca2+ > Na+ > Mg2+ > K+"], kunci_jawaban: "Na+ > Mg2+ > Ca2+ > K+" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Sebuah botol Niskin gagal menutup saat 'messenger' dikirimkan. Hal ini kemungkinan besar disebabkan oleh...", pilihan: ["Tekanan air terlalu tinggi", "Kabel seling melintir atau sudut kemiringan terlalu besar", "Suhu air terlalu rendah", "Salinitas air di kedalaman tersebut terlalu jenuh"], kunci_jawaban: "Kabel seling melintir atau sudut kemiringan terlalu besar" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Secchi disk mengukur parameter optik yang berhubungan dengan...", pilihan: ["Kandungan klorofil-a saja", "Kedalaman penetrasi cahaya (kecerahan/turbiditas)", "Kecepatan sedimentasi", "Suhu permukaan laut"], kunci_jawaban: "Kedalaman penetrasi cahaya (kecerahan/turbiditas)" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Berapakah persentase rata-rata Chloride (Cl-) dalam total garam laut?", pilihan: ["30.6%", "7.7%", "55.0%", "3.7%"], kunci_jawaban: "55.0%" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Dalam analisis kimia laut, botol sampel sebaiknya dibilas dengan air sampel sebanyak 3 kali. Tujuannya adalah...", pilihan: ["Memastikan botol tidak pecah", "Menyamakan suhu botol dengan suhu air", "Menghilangkan kontaminasi sisa pencucian sebelumnya", "Meningkatkan volume oksigen terlarut"], kunci_jawaban: "Menghilangkan kontaminasi sisa pencucian sebelumnya" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Komposisi air laut terdiri dari 96.5% air dan 3.5% garam. Jika Anda memiliki 2 kg air laut, berapakah massa garam totalnya?", pilihan: ["35 gram", "70 gram", "17.5 gram", "100 gram"], kunci_jawaban: "70 gram" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Unsur kimia mana yang paling reaktif dan cepat hilang dari kolom air sehingga memiliki residence time pendek?", pilihan: ["Sodium (Na)", "Klorida (Cl)", "Zat Besi (Fe)", "Magnesium (Mg)"], kunci_jawaban: "Zat Besi (Fe)" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Gas terlarut mana yang menjadi indikator utama aktivitas biologis di zona fotik?", pilihan: ["Argon", "Nitrogen", "Oksigen", "Neon"], kunci_jawaban: "Oksigen" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Penerapan Oseanografi Kimia dalam eksplorasi sumber daya meliputi...", pilihan: ["Pemetaan migrasi paus", "Eksplorasi mineral dasar laut dan hidrokarbon", "Penentuan rute kapal kargo", "Analisis tinggi gelombang"], kunci_jawaban: "Eksplorasi mineral dasar laut dan hidrokarbon" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Manakah yang merupakan sumber input ion ke laut dari daratan?", pilihan: ["Vulkanisme bawah laut", "Pelapukan batuan oleh air hujan dan aliran sungai", "Presipitasi atmosfer", "Hidrotermal vent"], kunci_jawaban: "Pelapukan batuan oleh air hujan dan aliran sungai" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Apa fungsi utama Rosette dalam operasional di kapal riset?", pilihan: ["Mengukur pasang surut", "Tempat pemasangan banyak botol sampel untuk sampling multi-depth", "Menghitung kelimpahan plankton", "Melindungi sensor CTD dari benturan karang"], kunci_jawaban: "Tempat pemasangan banyak botol sampel untuk sampling multi-depth" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Anion utama kedua setelah Klorida di air laut adalah...", pilihan: ["Bikarbonat", "Sulfate (SO4 2-)", "Bromida", "Nitrat"], kunci_jawaban: "Sulfate (SO4 2-)" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Kandungan Magnesium di laut berkisar 1.3 g/kg. Magnesium di laut utamanya berasal dari...", pilihan: ["Outgassing vulkanik", "Pelapukan batuan di darat", "Aktivitas antropogenik", "Hujan meteor"], kunci_jawaban: "Pelapukan batuan di darat" },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "pg", pertanyaan: "Alat yang digunakan untuk mengambil sampel sedimen di dasar laut dengan cara menjepit permukaan sedimen adalah...", pilihan: ["Niskin Bottle", "Grab Sampler", "Secchi Disk", "Reverse Thermometer"], kunci_jawaban: "Grab Sampler" },    
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "essay", pertanyaan: "Jelaskan proses terbentuknya salinitas laut secara geokimia!", kunci_jawaban: "Salinitas terbentuk dari dua proses utama: 1) Pelapukan batuan di darat oleh air hujan bersifat asam (CO2) yang membawa kation (Na, Mg, Ca, K) melalui sungai ke laut. 2) Aktivitas vulkanisme bawah laut dan hidrotermal yang melepaskan anion (Cl, SO4) melalui proses outgassing." },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "essay", pertanyaan: "Mengapa pemahaman tentang kimia laut sangat krusial bagi studi perubahan iklim global?", kunci_jawaban: "Karena laut adalah 'sink' karbon terbesar. Kimia laut mengatur penyerapan CO2 atmosfer melalui sistem karbonat. Selain itu, komposisi kimia dalam sedimen laut dalam menyimpan rekaman suhu dan komposisi atmosfer masa lalu (paleoklimatologi)." },
+    { kategori: "Pendahuluan Oseanografi Kimia", tipe: "essay", pertanyaan: "Uraikan prinsip kerja Botol Niskin dalam mengambil sampel air di kedalaman 1000 meter!", kunci_jawaban: "Botol diturunkan dalam keadaan kedua ujung terbuka agar air melewati botol. Setelah mencapai 1000m, messenger (pemberat) dijatuhkan untuk memicu pegas yang menutup kedua katup secara simultan, memerangkap sampel air pada kedalaman tersebut tanpa terkontaminasi air dari lapisan di atasnya saat ditarik ke permukaan." },
+
+    // --- KATEGORI 2: Review Basic Oceanography ---
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Manakah dari berikut ini yang merupakan penggerak utama sirkulasi termohalin?", pilihan: ["Angin pasat (trade winds)", "Perbedaan densitas akibat variasi suhu dan salinitas", "Gaya tarik bulan dan matahari", "Rotasi bumi (Efek Coriolis)"], kunci_jawaban: "Perbedaan densitas akibat variasi suhu dan salinitas" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Ekman Transport di belahan bumi selatan (SH) bergerak ke arah...", pilihan: ["90 derajat ke kanan arah angin", "90 derajat ke kiri arah angin", "Searah dengan angin", "Berlawanan dengan angin"], kunci_jawaban: "90 derajat ke kiri arah angin" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Di daerah equatorial upwelling, terjadi divergensi massa air permukaan. Hal ini berdampak pada kondisi kimiawi perairan yaitu...", pilihan: ["Penurunan kadar nutrien", "Peningkatan suhu permukaan", "Peningkatan nutrien dan produktivitas primer", "Penurunan densitas permukaan"], kunci_jawaban: "Peningkatan nutrien dan produktivitas primer" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Arus laut dalam (deep currents) umumnya memiliki karakteristik...", pilihan: ["Suhu tinggi, salinitas rendah", "Suhu rendah, salinitas tinggi (lebih rapat)", "Kecepatan sangat tinggi > 1 m/s", "Sangat dipengaruhi oleh angin musiman"], kunci_jawaban: "Suhu rendah, salinitas tinggi (lebih rapat)" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Global Conveyor Belt dimulai dengan pembentukan massa air dingin dan asin di wilayah...", pilihan: ["Samudra Hindia Tropis", "Atlantik Utara (NADW) dan Antartika", "Pasifik Ekuatorial", "Laut Mediterania"], kunci_jawaban: "Atlantik Utara (NADW) dan Antartika" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Berapakah rata-rata kedalaman samudra dunia dan apa titik terdalamnya?", pilihan: ["4500 m, Palung Jawa", "3800 m, Palung Mariana", "5000 m, Mid-Ocean Ridge", "2500 m, Continental Rise"], kunci_jawaban: "3800 m, Palung Mariana" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Passive margin berbeda dengan Active margin karena...", pilihan: ["Passive margin memiliki aktivitas seismik tinggi.", "Active margin biasanya ditandai dengan palung (trench) dan subduksi.", "Passive margin tidak memiliki Continental Shelf.", "Active margin hanya ditemukan di Samudra Atlantik."], kunci_jawaban: "Active margin biasanya ditandai dengan palung (trench) dan subduksi." },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Diagram T-S (Temperature-Salinity) digunakan oleh oseanograf untuk...", pilihan: ["Menghitung tinggi gelombang", "Mengidentifikasi tipe massa air dan proses pencampurannya", "Menentukan rute kapal yang paling efisien", "Mengukur kecepatan arus permukaan"], kunci_jawaban: "Mengidentifikasi tipe massa air dan proses pencampurannya" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Efek Coriolis menyebabkan pembelokan arah benda bergerak ke arah _____ di Belahan Bumi Utara.", pilihan: ["Kiri", "Kanan", "Atas", "Bawah"], kunci_jawaban: "Kanan" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Zat hara (nutrien) biasanya menumpuk di laut dalam karena proses...", pilihan: ["Fotosintesis", "Upwelling", "Remineralisasi/dekomposisi bahan organik yang tenggelam", "Adveksi horizontal"], kunci_jawaban: "Remineralisasi/dekomposisi bahan organik yang tenggelam" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Wilayah di laut yang tidak lagi terjangkau oleh cahaya matahari untuk fotosintesis disebut...", pilihan: ["Photic Zone", "Euphotic Zone", "Aphotic Zone", "Intertidal Zone"], kunci_jawaban: "Aphotic Zone" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Antarctic Circumpolar Current (ACC) unik karena...", pilihan: ["Arus yang paling hangat di dunia.", "Satu-satunya arus yang mengalir mengelilingi bumi tanpa hambatan daratan.", "Arus yang bergerak dari utara ke selatan.", "Hanya mengalir di lapisan permukaan sedalam 10 meter."], kunci_jawaban: "Satu-satunya arus yang mengalir mengelilingi bumi tanpa hambatan daratan." },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Metode Satellite Altimetry mengukur batimetri secara tidak langsung melalui...", pilihan: ["Gelombang suara", "Variasi tinggi permukaan laut akibat anomali gravitasi fitur dasar laut", "Warna air laut", "Suhu air permukaan"], kunci_jawaban: "Variasi tinggi permukaan laut akibat anomali gravitasi fitur dasar laut" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Pycnocline adalah lapisan di mana terjadi perubahan drastis pada...", pilihan: ["Suhu", "Salinitas", "Densitas", "Tekanan"], kunci_jawaban: "Densitas" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Siklus air (Hydrologic cycle) di laut sangat dipengaruhi oleh keseimbangan antara...", pilihan: ["Arus dan Gelombang", "Evaporasi dan Presipitasi", "Pasang dan Surut", "Upwelling dan Downwelling"], kunci_jawaban: "Evaporasi dan Presipitasi" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Berapa persen volume air laut yang berada di 'Mixed Layer' (lapisan permukaan)?", pilihan: ["2%", "18%", "80%", "50%"], kunci_jawaban: "2%" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Mid-Ocean Ridge merupakan fitur dasar laut yang terbentuk akibat...", pilihan: ["Konvergensi lempeng", "Divergensi lempeng (pemekaran lantai samudra)", "Erosi arus bawah laut", "Sedimentasi sungai"], kunci_jawaban: "Divergensi lempeng (pemekaran lantai samudra)" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Apa yang dimaksud dengan 'Residence Time' suatu molekul air di samudra?", pilihan: ["Waktu molekul air membeku", "Waktu rata-rata molekul air berada di samudra sebelum keluar melalui siklus hidrologi", "Kecepatan molekul air menguap", "Waktu air mengalir dari sungai ke muara"], kunci_jawaban: "Waktu rata-rata molekul air berada di samudra sebelum keluar melalui siklus hidrologi" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Pemanasan matahari di ekuator lebih kuat karena...", pilihan: ["Sudut datang sinar matahari mendekati 90 derajat (tegak lurus)", "Ekuator lebih dekat ke matahari", "Tidak ada awan di ekuator", "Laut di ekuator lebih asin"], kunci_jawaban: "Sudut datang sinar matahari mendekati 90 derajat (tegak lurus)" },
+    { kategori: "Review Basic Oceanography", tipe: "pg", pertanyaan: "Massa air yang terbentuk di laut Mediterania memiliki ciri khas...", pilihan: ["Sangat dingin dan tawar", "Sangat asin dan hangat (Intermediate water)", "Sangat dalam dan miskin oksigen", "Selalu berada di permukaan"], kunci_jawaban: "Sangat asin dan hangat (Intermediate water)" },
+    { kategori: "Review Basic Oceanography", tipe: "essay", pertanyaan: "Gambarkan dan jelaskan profil vertikal densitas air laut di daerah tropis vs kutub!", kunci_jawaban: "Di tropis, terdapat lapisan pycnocline yang tajam (densitas rendah di permukaan karena panas, densitas tinggi di dalam). Di kutub, profil densitas relatif konstan (isopycnal) dari permukaan hingga dasar karena suhu permukaan yang sudah sangat dingin, memfasilitasi pembentukan massa air dalam (deep water formation)." },
+    { kategori: "Review Basic Oceanography", tipe: "essay", pertanyaan: "Jelaskan fenomena Ekman Spiral dan hubungannya dengan transpor massa air!", kunci_jawaban: "Ekman spiral adalah struktur arus di mana setiap lapisan air di bawah permukaan bergerak lebih lambat dan membelok lebih jauh (akibat Coriolis) dibanding lapisan di atasnya. Secara neto, seluruh lapisan air tersebut (Ekman Layer) berpindah 90 derajat terhadap arah angin, yang disebut Ekman Transport." },
+    { kategori: "Review Basic Oceanography", tipe: "essay", pertanyaan: "Bagaimana kaitan antara sirkulasi angin (Gyre) dengan akumulasi Marine Debris (sampah laut)?", kunci_jawaban: "Sirkulasi Gyre menciptakan area konvergensi di pusatnya (pusat tekanan tinggi). Sampah yang terbawa arus permukaan akan terjebak dan terkumpul di pusat gyre tersebut karena gaya Coriolis dan tekanan, membentuk 'Garbage Patches' seperti di Pasifik Utara." },
+
+    // --- KATEGORI 3: Water and Seawater Property ---
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Molekul air bersifat polar (dipol). Manakah pernyataan yang benar mengenai distribusi muatannya?", pilihan: ["Atom Hidrogen bermuatan negatif, Oksigen positif.", "Atom Oksigen lebih elektronegatif sehingga bermuatan parsial negatif.", "Muatan tersebar merata secara simetris.", "Air hanya bermuatan jika mengandung garam."], kunci_jawaban: "Atom Oksigen lebih elektronegatif sehingga bermuatan parsial negatif." },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Ikatan hidrogen bertanggung jawab atas sifat air berikut, KECUALI...", pilihan: ["Tegangan permukaan yang tinggi", "Kapasitas panas yang tinggi", "Titik didih yang rendah dibandingkan senyawa sejenis", "Densitas es yang lebih rendah dari air cair"], kunci_jawaban: "Titik didih yang rendah dibandingkan senyawa sejenis" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Densitas maksimum air murni terjadi pada suhu 3.98 C. Apa yang terjadi pada struktur molekul saat air mendingin dari 3.98 C menuju 0 C?", pilihan: ["Molekul bergerak lebih cepat.", "Molekul mulai membentuk struktur kristal heksagonal yang lebih renggang.", "Jarak antar molekul semakin mengecil.", "Ikatan hidrogen terputus total."], kunci_jawaban: "Molekul mulai membentuk struktur kristal heksagonal yang lebih renggang." },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Keberadaan garam (salinitas) di air laut menyebabkan...", pilihan: ["Peningkatan titik beku", "Penurunan titik beku dan peningkatan densitas", "Penurunan densitas", "Peningkatan suhu densitas maksimum"], kunci_jawaban: "Penurunan titik beku dan peningkatan densitas" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Kapasitas panas air yang tinggi sangat penting bagi iklim bumi karena...", pilihan: ["Air laut cepat panas di siang hari.", "Laut dapat menyerap dan menyimpan sejumlah besar panas tanpa perubahan suhu yang drastis.", "Air laut memantulkan seluruh radiasi matahari.", "Mempercepat penguapan di kutub."], kunci_jawaban: "Laut dapat menyerap dan menyimpan sejumlah besar panas tanpa perubahan suhu yang drastis." },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Zat pelarut (solvent) utama di samudra adalah air. Zat terlarut (solute) paling dominan adalah ion...", pilihan: ["Kalsium", "Bikarbonat", "Klorida", "Magnesium"], kunci_jawaban: "Klorida" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Prinsip Proporsi Tetap (Marcet's Principle) menyatakan bahwa...", pilihan: ["Salinitas di seluruh laut sama.", "Rasio antara ion-ion utama terhadap kloritas adalah konstan.", "Jumlah garam di laut selalu bertambah.", "Setiap unsur memiliki waktu tinggal yang sama."], kunci_jawaban: "Rasio antara ion-ion utama terhadap kloritas adalah konstan." },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Viskositas air laut dipengaruhi oleh suhu dan salinitas. Manakah kondisi yang menghasilkan viskositas tertinggi?", pilihan: ["Suhu tinggi, salinitas rendah", "Suhu rendah, salinitas tinggi", "Suhu tinggi, salinitas tinggi", "Suhu rendah, salinitas rendah"], kunci_jawaban: "Suhu rendah, salinitas tinggi" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Berapakah nilai pH rata-rata permukaan air laut yang menjadikannya bersifat basa lemah?", pilihan: ["6.5", "7.0", "8.1", "9.5"], kunci_jawaban: "8.1" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Waktu tinggal (Residence Time) Sodium (Na) di samudra sangat lama (sekitar 68 juta tahun). Hal ini menunjukkan bahwa Sodium bersifat...", pilihan: ["Sangat reaktif", "Konservatif", "Mudah mengendap", "Unsur nutrisi"], kunci_jawaban: "Konservatif" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Proses 'Hydration' (hidrasi) terjadi ketika...", pilihan: ["Air menguap dari permukaan laut.", "Molekul air mengelilingi ion karena gaya tarik elektrostatik.", "Garam mengendap di dasar laut.", "Air membeku menjadi es."], kunci_jawaban: "Molekul air mengelilingi ion karena gaya tarik elektrostatik." },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Mengapa air laut tidak memiliki suhu densitas maksimum seperti air tawar?", pilihan: ["Karena tekanan laut terlalu tinggi.", "Karena kandungan garam (salinitas > 24.7 ppt) menurunkan suhu densitas maksimum di bawah titik beku.", "Karena air laut selalu bergerak.", "Karena adanya organisme laut."], kunci_jawaban: "Karena kandungan garam (salinitas > 24.7 ppt) menurunkan suhu densitas maksimum di bawah titik beku." },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Penambahan garam pada air meningkatkan tegangan permukaan. Hal ini disebabkan oleh...", pilihan: ["Ion menarik molekul air lebih kuat ke dalam larutan.", "Ion menghancurkan ikatan hidrogen.", "Garam bersifat hidrofobik.", "Garam mengapung di permukaan."], kunci_jawaban: "Ion menarik molekul air lebih kuat ke dalam larutan." },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Elemen manakah yang termasuk Minor Constituent (konsentrasi 1-100 ppm)?", pilihan: ["Chlorine", "Strontium", "Iron", "Gold"], kunci_jawaban: "Strontium" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Salinitas permukaan laut paling tinggi ditemukan di wilayah...", pilihan: ["Ekuator karena hujan tinggi", "Subtropis (Lattitude 30) karena evaporasi tinggi", "Muara sungai besar", "Dekat bongkahan es yang mencair"], kunci_jawaban: "Subtropis (Lattitude 30) karena evaporasi tinggi" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Berapakah sudut ikatan H-O-H pada molekul air?", pilihan: ["90 derajat", "180 derajat", "105 derajat", "120 derajat"], kunci_jawaban: "105 derajat" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Halocline adalah lapisan transisi berdasarkan perubahan...", pilihan: ["Suhu", "Salinitas", "Cahaya", "Tekanan"], kunci_jawaban: "Salinitas" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Transmission of light di laut paling baik (paling jauh tembus) pada spektrum warna...", pilihan: ["Merah", "Kuning", "Biru", "Violet"], kunci_jawaban: "Biru" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Laju perambatan suara di laut meningkat jika...", pilihan: ["Suhu dan tekanan meningkat", "Suhu dan salinitas menurun", "Kedalaman berkurang", "Air semakin tawar"], kunci_jawaban: "Suhu dan tekanan meningkat" },
+    { kategori: "Water and Seawater Property", tipe: "pg", pertanyaan: "Sifat air yang memungkinkannya naik melawan gravitasi dalam pipa kapiler atau pori sedimen disebut...", pilihan: ["Viscosity", "Capillarity", "Density", "Latent Heat"], kunci_jawaban: "Capillarity" },
+    { kategori: "Water and Seawater Property", tipe: "essay", pertanyaan: "Uraikan 3 anomali sifat fisis air akibat adanya ikatan hidrogen!", kunci_jawaban: "1) Kapasitas panas tinggi: membutuhkan energi besar untuk menaikkan suhu. 2) Densitas es lebih rendah dari air cair: es mengapung. 3) Titik didih dan titik beku yang jauh lebih tinggi dibanding senyawa hidrida sejenis (H2S, H2Se) sehingga air berwujud cair pada suhu permukaan bumi." },
+    { kategori: "Water and Seawater Property", tipe: "essay", pertanyaan: "Jelaskan konsep 'Residence Time' dan hubungannya dengan reaktivitas suatu unsur di laut!", kunci_jawaban: "Residence time adalah waktu rata-rata suatu unsur berada di laut sebelum dihilangkan oleh proses fisik atau kimia. Hubungannya: Unsur konservatif (seperti Na) memiliki residence time panjang karena tidak reaktif. Unsur non-konservatif (seperti Fe) memiliki residence time pendek karena sangat reaktif (mudah diserap biologi atau diendapkan)." },
+    { kategori: "Water and Seawater Property", tipe: "essay", pertanyaan: "Bagaimana proses pembentukan es laut (sea ice) mempengaruhi salinitas air di sekitarnya (brine rejection)?", kunci_jawaban: "Saat air laut membeku, hanya molekul air murni yang membentuk kristal es. Garam-garam tidak ikut masuk ke struktur kristal dan dikeluarkan ke air di bawahnya (brine rejection). Hal ini menyebabkan air di bawah es menjadi sangat asin dan sangat rapat (dense), yang kemudian tenggelam memicu sirkulasi dalam." },
+
+    // --- KATEGORI 4: Major, Minor, and Trace Element ---
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Unsur jejak (Trace Elements) seperti Fe dan Zn memiliki konsentrasi yang sangat rendah (< 1 ppm), namun krusial karena bersifat sebagai...", pilihan: ["Pelarut utama", "Pembatas produktivitas biologis (limiting nutrients)", "Pengatur tekanan hidrostatik", "Sumber utama salinitas"], kunci_jawaban: "Pembatas produktivitas biologis (limiting nutrients)" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Berapakah ambang batas konsentrasi untuk sebuah unsur dikategorikan sebagai Major Constituent?", pilihan: ["> 100 ppm", "> 1 ppm", "> 1000 ppm", "> 0.1 ppm"], kunci_jawaban: "> 1 ppm" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Manakah dari kelompok berikut yang seluruhnya merupakan Major Constituents?", pilihan: ["Na, Cl, Mg, Sr", "Na, Cl, SO4, Mg", "Ca, K, Fe, Cl", "HCO3, Br, Si, Na"], kunci_jawaban: "Na, Cl, SO4, Mg" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Unsur 'Nutrient-type' (seperti Silika) memiliki profil vertikal yang...", pilihan: ["Tinggi di permukaan, rendah di dalam.", "Rendah di permukaan (diambil organisme), meningkat di kedalaman (remineralisasi).", "Konstan di seluruh kedalaman.", "Hanya ada di sedimen dasar."], kunci_jawaban: "Rendah di permukaan (diambil organisme), meningkat di kedalaman (remineralisasi)." },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Apa yang menyebabkan Aluminium (Al) memiliki residence time yang sangat pendek di laut?", pilihan: ["Alat ukur yang tidak akurat", "Sangat larut dalam air", "Bersifat 'scavenged' atau mudah melekat pada partikel dan mengendap", "Banyak dikonsumsi oleh ikan"], kunci_jawaban: "Bersifat 'scavenged' atau mudah melekat pada partikel dan mengendap" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Pernyataan yang benar mengenai Klorinitas adalah...", pilihan: ["Jumlah seluruh garam dalam 1 kg air laut.", "Massa total ion halida (Cl, Br, I) dalam 1 kg air laut yang dinyatakan sebagai massa ekivalen klorida.", "Hanya mengukur ion NaCl.", "Sama dengan salinitas dikali 1.80655."], kunci_jawaban: "Massa total ion halida (Cl, Br, I) dalam 1 kg air laut yang dinyatakan sebagai massa ekivalen klorida." },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Siklus geokimia ion di laut mencapai kesetimbangan dinamis (steady state) ketika...", pilihan: ["Laju input (dari sungai/vulkanik) sama dengan laju output (sedimentasi/penguapan).", "Semua ikan mati.", "Laut membeku total.", "Salinitas mencapai 40 ppt."], kunci_jawaban: "Laju input (dari sungai/vulkanik) sama dengan laju output (sedimentasi/penguapan)." },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Konstanta proporsionalitas 1.80655 dalam rumus salinitas ditetapkan oleh...", pilihan: ["UNESCO", "Knudsen dan tim (Dittmar)", "Marcet", "Coriolis"], kunci_jawaban: "Knudsen dan tim (Dittmar)" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Trace element 'Zinc' (Zn) sering menunjukkan profil yang mirip dengan...", pilihan: ["Salinitas (konservatif)", "Silikat (nutrient-type)", "Oksigen (gas-type)", "Aluminium (scavenged-type)"], kunci_jawaban: "Silikat (nutrient-type)" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Manakah yang merupakan sumber 'Internal' unsur trace di laut dalam?", pilihan: ["Debu eolian", "Hidrotermal vent dan peluruhan radioaktif sedimen", "Limbah industri", "Hujan"], kunci_jawaban: "Hidrotermal vent dan peluruhan radioaktif sedimen" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Ion Borat (B(OH)4-) penting dalam kimia laut karena kontribusinya pada...", pilihan: ["Salinitas", "Alkalinitas dan sistem buffer pH", "Pembentukan cangkang diatomae", "Warna air laut"], kunci_jawaban: "Alkalinitas dan sistem buffer pH" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Dalam 1 kg air laut standar (S=35), massa klorida kira-kira adalah...", pilihan: ["10.7 gram", "19.35 gram", "2.7 gram", "1.3 gram"], kunci_jawaban: "19.35 gram" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Proses 'Adsorption' pada trace element adalah...", pilihan: ["Penguapan unsur ke udara", "Penempelan ion terlarut ke permukaan partikel padat", "Pelarutan mineral dari sedimen", "Pengambilan ion oleh akar bakau"], kunci_jawaban: "Penempelan ion terlarut ke permukaan partikel padat" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Unsur Gas Mulia (He, Ne, Ar) di laut bersifat...", pilihan: ["Sangat reaktif", "Konservatif dan hanya dipengaruhi proses fisik", "Nutrien pembatas", "Beracun bagi ikan"], kunci_jawaban: "Konservatif dan hanya dipengaruhi proses fisik" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Residence time (T) dihitung sebagai Massa Total (A) dibagi dengan laju input/output (dA/dt). Jika input Na adalah 0.1 x 10^12 kg/tahun dan total Na di laut adalah 15000 x 10^12 kg, berapakah T dalam juta tahun?", pilihan: ["150", "15", "1.5", "1500"], kunci_jawaban: "150" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Radioisotop alam yang sering digunakan sebagai tracer proses kimia laut adalah...", pilihan: ["Karbon-14 dan Tritium", "Emas", "Sodium", "Chlorine-35"], kunci_jawaban: "Karbon-14 dan Tritium" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Salinitas yang sangat tinggi (> 50 ppt) seperti di Laut Mati atau danau garam disebut...", pilihan: ["Brackish", "Euhaline", "Brine", "Oligohaline"], kunci_jawaban: "Brine" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Ion Sulfat (SO4 2-) di samudra terbuka umumnya bersifat konservatif, namun di lingkungan anoksik (tanpa O2) akan...", pilihan: ["Menguap", "Direduksi menjadi H2S oleh bakteri", "Berubah menjadi Emas", "Meningkatkan pH"], kunci_jawaban: "Direduksi menjadi H2S oleh bakteri" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Kelompok logam berat yang sering menjadi polutan di laut adalah...", pilihan: ["Na, Mg, Ca", "Hg, Pb, Cd", "N, P, K", "Ar, He, Ne"], kunci_jawaban: "Hg, Pb, Cd" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "pg", pertanyaan: "Distribusi 'Vertical Profiling' unsur trace dipengaruhi oleh tiga proses utama, yaitu...", pilihan: ["Input, Biologi, Scavenging", "Suhu, Salinitas, Tekanan", "Angin, Pasang surut, Gelombang", "Ikan, Kapal, Nelayan"], kunci_jawaban: "Input, Biologi, Scavenging" },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "essay", pertanyaan: "Bedakan profil vertikal unsur 'Nutrient-type' dengan 'Scavenged-type'!", kunci_jawaban: "Nutrient-type (ex: Zn, Si): Konsentrasi rendah di permukaan karena dikonsumsi organisme, meningkat di laut dalam karena remineralisasi bahan organik. Scavenged-type (ex: Al, Mn): Konsentrasi tinggi di permukaan (input debu/sungai), menurun drastis di kedalaman karena ion tersebut melekat pada partikel yang tenggelam (adsorpsi)." },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "essay", pertanyaan: "Mengapa rasio antar ion-ion utama (seperti Na/Cl atau Mg/Cl) di laut terbuka tetap konstan meskipun salinitas totalnya berubah?", kunci_jawaban: "Karena ion-ion utama tersebut memiliki residence time yang sangat lama (jauh lebih lama dibanding waktu pencampuran samudra/mixing time). Hal ini menyebabkan ion-ion tersebut terdistribusi secara merata di seluruh samudra dunia sebelum sempat dihilangkan oleh proses kimia atau biologi lokal." },
+    { kategori: "Major, Minor, and Trace Elements", tipe: "essay", pertanyaan: "Sebutkan 3 sumber (sources) dan 3 penghilang (sinks) ion di samudra!", kunci_jawaban: "Sources: Aliran sungai (pelapukan darat), aktivitas hidrotermal vent, outgassing vulkanik, debu atmosfer. Sinks: Pembentukan mineral evaporit, sedimentasi biologis (cangkang), adsorpsi pada partikel, interaksi kimia di ridge basal." },
+
+    // --- KATEGORI 5: Gas Terlarut di Laut ---
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Hukum Henry menyatakan kelarutan gas dalam cairan berbanding lurus dengan...", pilihan: ["Suhu air", "Tekanan parsial gas di atas cairan", "Salinitas air", "Kedalaman"], kunci_jawaban: "Tekanan parsial gas di atas cairan" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Manakah dari gas berikut yang memiliki kelarutan tertinggi di air laut karena bereaksi secara kimia?", pilihan: ["Oksigen (O2)", "Nitrogen (N2)", "Karbon Dioksida (CO2)", "Argon (Ar)"], kunci_jawaban: "Karbon Dioksida (CO2)" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Fenomena 'Oxygen Minimum Zone' (OMZ) biasanya terjadi pada kedalaman 200 - 1000 m. Penyebab utamanya adalah...", pilihan: ["Fotosintesis sangat tinggi di kedalaman tersebut.", "Konsumsi oksigen oleh bakteri selama dekomposisi bahan organik (respirasi) melebihi suplai oksigen.", "Tekanan air yang terlalu tinggi menghambat kelarutan oksigen.", "Suhu air yang terlalu hangat."], kunci_jawaban: "Konsumsi oksigen oleh bakteri selama dekomposisi bahan organik (respirasi) melebihi suplai oksigen." },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Gas mana yang digunakan sebagai 'Tracer' untuk menentukan umur massa air karena bersifat antropogenik dan inert?", pilihan: ["Oksigen", "CFCs (Chlorofluorocarbons)", "Metana", "Radon-222"], kunci_jawaban: "CFCs (Chlorofluorocarbons)" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Kelarutan Oksigen di laut akan MENURUN jika...", pilihan: ["Suhu turun dan salinitas turun", "Suhu naik dan salinitas naik", "Tekanan parsial oksigen naik", "Kecepatan angin meningkat"], kunci_jawaban: "Suhu naik dan salinitas naik" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Gas 'Radon-222' di permukaan laut sering menunjukkan kondisi 'undersaturated' (kurang jenuh). Hal ini dimanfaatkan untuk mengukur...", pilihan: ["Produktivitas primer", "Laju pertukaran gas antara atmosfer dan laut (gas exchange rate)", "Kedalaman termoklin", "Kecepatan arus geostropik"], kunci_jawaban: "Laju pertukaran gas antara atmosfer dan laut (gas exchange rate)" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Methane Hydrates (Clathrates) adalah struktur kristal es yang memerangkap metana. Kondisi paling stabil untuk keberadaannya adalah...", pilihan: ["Permukaan laut yang hangat", "Sedimen laut dalam dengan suhu rendah dan tekanan tinggi", "Atmosfer bagian atas", "Muara sungai tropis"], kunci_jawaban: "Sedimen laut dalam dengan suhu rendah dan tekanan tinggi" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Gas Nitrogen (N2) adalah gas paling melimpah di laut. Sebagian besar gas ini bersifat...", pilihan: ["Sangat beracun", "Inert (tidak reaktif) bagi sebagian besar organisme", "Hasil utama respirasi", "Penyebab utama korosi kapal"], kunci_jawaban: "Inert (tidak reaktif) bagi sebagian besar organisme" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "DMS (Dimethyl Sulfide) merupakan gas penting yang dihasilkan oleh fitoplankton karena perannya sebagai...", pilihan: ["Gas rumah kaca kuat", "Inti kondensasi awan (Cloud Condensation Nuclei) yang mendinginkan bumi", "Nutrien utama bagi ikan", "Sumber utama salinitas"], kunci_jawaban: "Inti kondensasi awan (Cloud Condensation Nuclei) yang mendinginkan bumi" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Pelepasan gas Metana (CH4) secara besar-besaran dari hidrat di dasar laut dapat memicu...", pilihan: ["Zaman es baru", "Pemanasan global yang ekstrem (runaway greenhouse effect)", "Peningkatan kadar oksigen laut", "Penurunan pH laut secara instan"], kunci_jawaban: "Pemanasan global yang ekstrem (runaway greenhouse effect)" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Mengapa konsentrasi oksigen meningkat kembali di bawah lapisan OMZ (di laut dalam)?", pilihan: ["Ada fotosintesis di kegelapan.", "Suplai oksigen dari massa air dalam (seperti AABW/NADW) yang terbentuk di permukaan kutub yang kaya oksigen.", "Ikan di laut dalam tidak bernapas.", "Bakteri di laut dalam menghasilkan oksigen."], kunci_jawaban: "Suplai oksigen dari massa air dalam (seperti AABW/NADW) yang terbentuk di permukaan kutub yang kaya oksigen." },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Gas He-3 (Isotop Helium) di laut dalam seringkali menunjukkan anomali tinggi di dekat...", pilihan: ["Hutan bakau", "Pematang tengah samudra (Mid-Ocean Ridges) akibat input magma", "Permukaan karena polusi udara", "Dekat pantai berpasir"], kunci_jawaban: "Pematang tengah samudra (Mid-Ocean Ridges) akibat input magma" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Proses 'Air-Sea Gas Exchange' dipengaruhi secara fisik oleh...", pilihan: ["Kecepatan angin dan perbedaan tekanan parsial (delta P)", "Jumlah ikan di laut", "Warna air laut", "Kandungan mineral sedimen"], kunci_jawaban: "Kecepatan angin dan perbedaan tekanan parsial (delta P)" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Satuan kelarutan gas yang sering digunakan dalam oseanografi adalah...", pilihan: ["ppm", "ml/L atau micromol/kg", "gram", "persen"], kunci_jawaban: "ml/L atau micromol/kg" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Gas Nitrogen Oksida (N2O) di laut merupakan...", pilihan: ["Gas yang tidak berbahaya", "Gas rumah kaca yang sangat kuat, dihasilkan selama proses nitrifikasi/denitrifikasi", "Sumber utama oksigen", "Hasil sampingan fotosintesis"], kunci_jawaban: "Gas rumah kaca yang sangat kuat, dihasilkan selama proses nitrifikasi/denitrifikasi" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Apa yang dimaksud dengan 'Saturation' 100% pada gas terlarut?", pilihan: ["Air mendidih", "Kesetimbangan antara laju gas masuk dan keluar pada permukaan laut", "Seluruh gas hilang", "Gas berubah menjadi kristal"], kunci_jawaban: "Kesetimbangan antara laju gas masuk dan keluar pada permukaan laut" },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Gas Argon (Ar) sering digunakan untuk menghitung anomali gas biologis karena...", pilihan: ["Argon dihasilkan oleh ikan.", "Argon bersifat inert dan kelarutannya mirip oksigen secara fisik.", "Argon sangat reaktif.", "Argon mudah menguap."], kunci_jawaban: "Argon bersifat inert dan kelarutannya mirip oksigen secara fisik." },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "AOU (Apparent Oxygen Utilization) didefinisikan sebagai...", pilihan: ["Oksigen yang tersisa di botol sampel.", "Selisih antara kelarutan oksigen teoritis (saat jenuh) dengan konsentrasi oksigen terukur.", "Oksigen yang dihasilkan fitoplankton.", "Kecepatan difusi oksigen."], kunci_jawaban: "Selisih antara kelarutan oksigen teoritis (saat jenuh) dengan konsentrasi oksigen terukur." },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "Efek 'Salting Out' pada gas berarti...", pilihan: ["Garam keluar dari air.", "Peningkatan salinitas menurunkan kelarutan gas.", "Peningkatan salinitas menaikkan kelarutan gas.", "Garam berubah menjadi gas."], kunci_jawaban: "Peningkatan salinitas menurunkan kelarutan gas." },
+    { kategori: "Gas Terlarut di Laut", tipe: "pg", pertanyaan: "CO (Karbon Monoksida) di laut permukaan utamanya dihasilkan dari...", pilihan: ["Bernapasnya ikan", "Fotodegradasi bahan organik terlarut (DOM) oleh sinar matahari (UV)", "Mesin kapal", "Vulkanisme"], kunci_jawaban: "Fotodegradasi bahan organik terlarut (DOM) oleh sinar matahari (UV)" },
+    { kategori: "Gas Terlarut di Laut", tipe: "essay", pertanyaan: "Uraikan profil vertikal Karbon Dioksida (CO2) dan hubungannya dengan profil Oksigen (O2)!", kunci_jawaban: "Profil CO2 berlawanan dengan O2. Di permukaan, CO2 rendah karena dikonsumsi fotosintesis sementara O2 tinggi. Seiring bertambahnya kedalaman, CO2 meningkat akibat respirasi dan remineralisasi bahan organik yang melepaskan CO2 kembali, sementara O2 menurun drastis dikonsumsi proses tersebut (OMZ). Di laut dalam, CO2 tetap tinggi karena suhu dingin dan tekanan tinggi mendukung kelarutannya." },
+    { kategori: "Gas Terlarut di Laut", tipe: "essay", pertanyaan: "Mengapa kelarutan gas Karbon Dioksida (CO2) di laut jauh lebih besar (puluhan kali lipat) dibandingkan Oksigen (O2)?", kunci_jawaban: "Karena CO2 tidak hanya larut secara fisik, tetapi juga bereaksi secara kimiawi dengan molekul air membentuk Asam Karbonat (H2CO3), yang kemudian terdisosiasi menjadi Bikarbonat (HCO3-) dan Karbonat (CO3 2-). Sistem buffer karbonat ini memungkinkan laut menyimpan cadangan karbon yang jauh lebih besar dalam bentuk ionik." },
+    { kategori: "Gas Terlarut di Laut", tipe: "essay", pertanyaan: "Apa yang dimaksud dengan 'Methane Hydrates' dan mengapa mereka dianggap sebagai 'ancaman' sekaligus 'peluang'?", kunci_jawaban: "Struktur kristal air yang memerangkap gas metana di sedimen laut dalam. Peluang: sebagai sumber energi masa depan (gas alam) yang masif. Ancaman: jika suhu laut naik atau tekanan berkurang, mereka bisa mencair dan melepaskan metana (gas rumah kaca yang 25x lebih kuat dari CO2) ke atmosfer secara mendadak, memicu pemanasan global ekstrem." },
+
+    // --- KATEGORI 6: Interaksi Ion, POM, dan DOM ---
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Definisi operasional Dissolved Organic Matter (DOM) adalah bahan organik yang...", pilihan: ["Lolos melalui filter pori 0.45 mikrometer", "Tertahan pada filter pori 0.45 mikrometer", "Dapat dilihat dengan mata telanjang", "Mengendap di dasar laut"], kunci_jawaban: "Lolos melalui filter pori 0.45 mikrometer" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Fenomena 'Electrostriction' (elektrostriksi) mengakibatkan...", pilihan: ["Peningkatan volume air saat garam dilarutkan.", "Pengurangan volume air total karena molekul air tersusun lebih rapat di sekitar ion muatan.", "Air laut menghantarkan listrik lebih lambat.", "Pembentukan gelembung gas."], kunci_jawaban: "Pengurangan volume air total karena molekul air tersusun lebih rapat di sekitar ion muatan." },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Kation utama (seperti Na+) akan menarik sisi molekul air yang bermuatan parsial negatif, yaitu bagian...", pilihan: ["Atom Hidrogen", "Atom Oksigen", "Ikatan Kovalen", "Inti atom"], kunci_jawaban: "Atom Oksigen" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Berapakah penyusutan volume yang terjadi jika 3% berat NaCl dilarutkan dalam air?", pilihan: ["0.1%", "0.5%", "3.0%", "5.0%"], kunci_jawaban: "0.5%" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Ion yang dikategorikan sebagai 'Structure Maker' (seperti Li+ atau Mg2+) memiliki karakteristik...", pilihan: ["Ukuran besar, muatan kecil", "Ukuran kecil dan/atau muatan tinggi (kepadatan muatan tinggi)", "Selalu bersifat anion", "Mudah menguap"], kunci_jawaban: "Ukuran kecil dan/atau muatan tinggi (kepadatan muatan tinggi)" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Viskositas air laut meningkat seiring dengan...", pilihan: ["Peningkatan suhu", "Penurunan salinitas", "Peningkatan salinitas (akibat pembentukan lapisan hidrasi)", "Penurunan tekanan"], kunci_jawaban: "Peningkatan salinitas (akibat pembentukan lapisan hidrasi)" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Particulate Organic Matter (POM) utamanya dihilangkan dari lapisan permukaan melalui proses...", pilihan: ["Penguapan", "Sedimentasi vertikal (Sinking)", "Difusi atmosfer", "Pembekuan"], kunci_jawaban: "Sedimentasi vertikal (Sinking)" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Cadangan Karbon Organik terbesar di samudra berada dalam bentuk...", pilihan: ["POM (Ikan dan Plankton)", "DOM (Dissolved Organic Matter)", "Sedimen kapur", "Karbon monoksida"], kunci_jawaban: "DOM (Dissolved Organic Matter)" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Zat organik terlarut yang memberikan warna kuning pada air laut (sering ditemukan di pesisir) disebut...", pilihan: ["Chlorophyll", "Gelbstoff / Humic substances", "Silt", "Brine"], kunci_jawaban: "Gelbstoff / Humic substances" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Proses di mana bakteri mengonsumsi DOM dan mengubahnya menjadi biomassa partikulat yang bisa dimakan protozoa disebut...", pilihan: ["Nitrifikasi", "Microbial Loop", "Fotosintesis", "Adsorpsi"], kunci_jawaban: "Microbial Loop" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Rasio Redfield (C:N:P) pada materi organik laut yang sehat adalah...", pilihan: ["10:1:1", "106:16:1", "35:1:0.1", "1:1:1"], kunci_jawaban: "106:16:1" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "POM yang memiliki densitas rendah dan tekstur halus sehingga melayang jatuh perlahan ke laut dalam disebut...", pilihan: ["Marine Snow", "Turbidit", "Sand storm", "Tsunami"], kunci_jawaban: "Marine Snow" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Interaksi ion-dipol antara air dan garam menyebabkan pembentukan...", pilihan: ["Pori-pori udara", "Lapisan Hidrasi (Waters of Hydration)", "Es laut", "Endapan emas"], kunci_jawaban: "Lapisan Hidrasi (Waters of Hydration)" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "DOM yang bersifat 'Refractory' berarti bahan tersebut...", pilihan: ["Sangat mudah dimakan bakteri.", "Sangat sulit didegradasi dan berumur ribuan tahun.", "Hanya ditemukan di muara.", "Berwarna merah menyala."], kunci_jawaban: "Sangat sulit didegradasi dan berumur ribuan tahun." },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Koagulasi partikel di muara sungai (estuari) dipicu oleh peningkatan kekuatan ionik yang menyebabkan...", pilihan: ["Partikel saling menjauh", "Penetralan muatan koloid sehingga partikel menggumpal (flokulasi)", "Partikel mengapung ke udara", "Bakteri mati total"], kunci_jawaban: "Penetralan muatan koloid sehingga partikel menggumpal (flokulasi)" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Senyawa organik utama penyusun POM adalah...", pilihan: ["Garam dan mineral", "Karbohidrat, Protein, dan Lipid", "Pasir dan lumpur", "Hanya karbon dioksida"], kunci_jawaban: "Karbohidrat, Protein, dan Lipid" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Logam berat di laut seringkali 'terbersihkan' dari kolom air karena menempel pada permukaan...", pilihan: ["Gelembung gas", "POM dan oksida mangan (Scavenging)", "Cahaya matahari", "Kabel kapal"], kunci_jawaban: "POM dan oksida mangan (Scavenging)" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Sumber utama POM di samudra terbuka (open ocean) adalah...", pilihan: ["Sampah kota", "Produksi primer oleh fitoplankton", "Erosi pantai", "Debu gurun"], kunci_jawaban: "Produksi primer oleh fitoplankton" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Proses 'Remineralisasi' mengubah bahan organik kembali menjadi...", pilihan: ["Batu bara", "Nutrien anorganik (PO4, NO3) dan CO2", "Oksigen", "Minyak bumi"], kunci_jawaban: "Nutrien anorganik (PO4, NO3) dan CO2" },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "pg", pertanyaan: "Ion 'Structure Breaker' (seperti K+ dan Cl-) cenderung...", pilihan: ["Meningkatkan keteraturan molekul air.", "Mengganggu jaringan ikatan hidrogen air.", "Membuat air membeku lebih cepat.", "Tidak bereaksi sama sekali."], kunci_jawaban: "Mengganggu jaringan ikatan hidrogen air." },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "essay", pertanyaan: "Jelaskan mekanisme pembentukan lapisan hidrasi pada ion Kation vs Anion!", kunci_jawaban: "Kation (muatan positif) akan menarik atom Oksigen dari molekul air (yang bermuatan parsial negatif) untuk menghadap ke arah kation. Sebaliknya, Anion (muatan negatif) akan menarik atom Hidrogen dari molekul air (yang bermuatan parsial positif) untuk menghadap ke arah anion. Orientasi ini menciptakan struktur air yang teratur di sekeliling ion." },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "essay", pertanyaan: "Apa yang dimaksud dengan 'Biological Pump' (Pompa Biologis) dalam siklus karbon laut?", kunci_jawaban: "Biological pump adalah proses di mana karbon dioksida di lapisan permukaan diambil oleh fitoplankton melalui fotosintesis, diubah menjadi materi organik (POM), yang kemudian dimakan atau mati dan tenggelam ke laut dalam (sedimentasi). Proses ini memindahkan karbon secara efektif dari atmosfer ke dasar samudra dalam jangka panjang." },
+    { kategori: "Interaksi Ion, POM, dan DOM", tipe: "essay", pertanyaan: "Mengapa DOM Refractory sangat penting dalam studi siklus karbon global?", kunci_jawaban: "Karena volumenya yang sangat besar dan daya tahannya yang luar biasa terhadap degradasi biologis (bisa bertahan > 5000 tahun). DOM refractory berfungsi sebagai 'reservoir' karbon organik terlarut yang stabil di laut dalam, mencegah karbon tersebut kembali ke atmosfer dalam waktu cepat sebagai CO2." },
+
+    // --- KATEGORI 7: Asam-Basa dan pH Laut ---
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Definisi Asam menurut teori Bronsted-Lowry adalah spesi kimia yang...", pilihan: ["Menerima pasangan elektron", "Mendonorkan proton (H+)", "Melepaskan ion OH-", "Meningkatkan pH"], kunci_jawaban: "Mendonorkan proton (H+)" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Sistem penyangga (buffer) utama yang menjaga pH laut tetap stabil di angka ~8.1 adalah...", pilihan: ["Sistem Amonia", "Sistem Borat", "Sistem Karbonat (Bikarbonat-Karbonat)", "Sistem Silikat"], kunci_jawaban: "Sistem Karbonat (Bikarbonat-Karbonat)" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Penambahan CO2 ke dalam air laut akan menyebabkan pembentukan asam karbonat yang kemudian melepaskan ion H+. Akibatnya adalah...", pilihan: ["pH laut meningkat", "pH laut menurun (Ocean Acidification)", "Konsentrasi karbonat (CO3 2-) meningkat", "Laut menjadi lebih tawar"], kunci_jawaban: "pH laut menurun (Ocean Acidification)" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Manakah spesi karbonat yang paling dominan dalam air laut dengan pH 8.1?", pilihan: ["CO2 terlarut", "H2CO3 (Asam karbonat)", "HCO3- (Bikarbonat)", "CO3 2- (Karbonat)"], kunci_jawaban: "HCO3- (Bikarbonat)" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Alkalinitas Total (AT) secara umum menggambarkan...", pilihan: ["Tingkat keasinan air laut.", "Kapasitas air laut untuk menetralkan asam (kapasitas buffer).", "Jumlah total oksigen yang bisa dilarutkan.", "Kecepatan arus permukaan."], kunci_jawaban: "Kapasitas air laut untuk menetralkan asam (kapasitas buffer)." },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Proses biologis manakah yang secara langsung MENINGKATKAN pH (membuat air lebih basa) di lapisan permukaan?", pilihan: ["Respirasi", "Dekomposisi", "Fotosintesis (karena mengambil CO2)", "Oksidasi amonia"], kunci_jawaban: "Fotosintesis (karena mengambil CO2)" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Ocean Acidification berdampak buruk bagi organisme kalsifikasi (seperti karang) karena menurunkan saturasi...", pilihan: ["Kalsium Karbonat (CaCO3)", "Garam NaCl", "Silika", "Oksigen"], kunci_jawaban: "Kalsium Karbonat (CaCO3)" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Pada suhu 25 C, larutan yang memiliki pH 9 dikategorikan sebagai...", pilihan: ["Asam kuat", "Netral", "Basa", "Asam lemah"], kunci_jawaban: "Basa" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Konstanta disosiasi air (Kw) didefinisikan sebagai hasil kali konsentrasi...", pilihan: ["[H+] dan [OH-]", "[Na+] dan [Cl-]", "pH dan pOH", "Suhu dan Salinitas"], kunci_jawaban: "[H+] dan [OH-]" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Apa yang terjadi pada kesetimbangan karbonat jika kita menambahkan ion H+ (asam) ke air laut?", pilihan: ["Ion Karbonat (CO3 2-) bereaksi dengan H+ menjadi Bikarbonat (HCO3-).", "Bikarbonat melepaskan H+.", "pH akan naik.", "Garam akan mengendap."], kunci_jawaban: "Ion Karbonat (CO3 2-) bereaksi dengan H+ menjadi Bikarbonat (HCO3-)." },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Indikator pH paling akurat yang digunakan di laboratorium oseanografi adalah...", pilihan: ["Kertas lakmus", "Indikator universal cair", "Elektroda pH elektrostatis (pH meter)", "Secchi disk"], kunci_jawaban: "Elektroda pH elektrostatis (pH meter)" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Nilai pKw air murni pada suhu 25 C adalah 14. Jika pH suatu larutan adalah 8, berapakah pOH-nya?", pilihan: ["6", "7", "8", "14"], kunci_jawaban: "6" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Proses 'Liming' (pemberian kapur) pada kolam budidaya laut bertujuan untuk...", pilihan: ["Membunuh ikan", "Meningkatkan pH dan alkalinitas perairan yang terlalu asam", "Meningkatkan salinitas", "Menjernihkan air dari lumpur"], kunci_jawaban: "Meningkatkan pH dan alkalinitas perairan yang terlalu asam" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Hujan secara alami bersifat sedikit asam (pH ~5.6) karena adanya pelarutan gas _____ dari atmosfer.", pilihan: ["Oksigen", "Nitrogen", "Karbon Dioksida", "Argon"], kunci_jawaban: "Karbon Dioksida" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Variasi harian pH di terumbu karang menunjukkan titik terendah (paling asam) pada saat...", pilihan: ["Tengah hari saat matahari terik", "Subuh/Malam hari karena akumulasi CO2 dari respirasi tanpa fotosintesis", "Sore hari", "Saat pasang tertinggi"], kunci_jawaban: "Subuh/Malam hari karena akumulasi CO2 dari respirasi tanpa fotosintesis" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Lysocline dan Carbonate Compensation Depth (CCD) berhubungan dengan...", pilihan: ["Kedalaman di mana cangkang kalsium karbonat mulai melarut.", "Kedalaman maksimum ikan bisa berenang.", "Batas antara air tawar dan asin.", "Titik beku air laut."], kunci_jawaban: "Kedalaman di mana cangkang kalsium karbonat mulai melarut." },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Pernyataan yang benar mengenai Alkalinitas Karbonat adalah...", pilihan: ["Hanya terdiri dari ion Na+.", "Bagian dari alkalinitas total yang berasal dari ion HCO3- dan CO3 2-.", "Selalu bernilai negatif.", "Sama dengan salinitas."], kunci_jawaban: "Bagian dari alkalinitas total yang berasal dari ion HCO3- dan CO3 2-." },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Apa efek peningkatan suhu air laut terhadap pH (dengan asumsi parameter lain tetap)?", pilihan: ["pH akan sedikit menurun karena perubahan konstanta disosiasi Kw.", "pH akan meningkat drastis.", "pH tidak dipengaruhi suhu.", "Air akan menjadi tawar."], kunci_jawaban: "pH akan sedikit menurun karena perubahan konstanta disosiasi Kw." },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Borat (B(OH)3) berkontribusi sekitar _____ terhadap alkalinitas total laut.", pilihan: ["1%", "4-5%", "50%", "90%"], kunci_jawaban: "4-5%" },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "pg", pertanyaan: "Dalam sistem air laut, jika Alkalinitas Total tetap namun CO2 terlarut meningkat, maka...", pilihan: ["pH akan turun dan CO3 2- akan berkurang.", "pH akan naik.", "Karang akan tumbuh lebih cepat.", "Salinitas akan turun."], kunci_jawaban: "pH akan turun dan CO3 2- akan berkurang." },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "essay", pertanyaan: "Jelaskan mengapa laut disebut memiliki kemampuan 'Self-Buffering' terhadap penambahan asam!", kunci_jawaban: "Laut memiliki sistem buffer karbonat yang sangat kuat. Ketika asam (ion H+) ditambahkan, ion karbonat (CO3 2-) yang tersedia akan bereaksi dengan H+ tersebut membentuk bikarbonat (HCO3-). Reaksi ini menetralkan kelebihan H+ sehingga perubahan pH menjadi sangat kecil. Namun, kapasitas ini terbatas dan saat ini mulai tertekan oleh tingginya emisi CO2 atmosfer." },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "essay", pertanyaan: "Uraikan dampak 'Ocean Acidification' terhadap rantai makanan di laut!", kunci_jawaban: "Pengasaman laut menurunkan saturasi ion karbonat, yang menyulitkan organisme basis rantai makanan seperti pteropoda (siput laut), coccolithophore, dan larva moluska untuk membentuk cangkang kalsium karbonat. Jika populasi organisme dasar ini runtuh, maka predator di tingkat atas (seperti ikan dan paus) akan kehilangan sumber makanan utama, yang berujung pada ketidakseimbangan ekosistem global." },
+    { kategori: "Asam-Basa dan pH Laut", tipe: "essay", pertanyaan: "Bedakan antara 'pH' dan 'Alkalinitas'!", kunci_jawaban: "pH adalah ukuran intensitas keasaman atau konsentrasi ion hidrogen [H+] bebas dalam air pada saat tertentu (parameter intensif). Alkalinitas adalah ukuran kapasitas kuantitatif air untuk menetralkan asam atau menahan perubahan pH (parameter ekstensif), yang ditentukan oleh jumlah basa terlarut seperti bikarbonat, karbonat, dan borat." }
+];
+
+
+let soalAktif = [], indeksSoal = 0, jawabanUser = [];
+
+function initMenu() {
+    const container = document.getElementById('menu-container');
+    container.innerHTML = ''; 
+    const kategoriUnik = [...new Set(databaseSoal.map(s => s.kategori))];
+    kategoriUnik.forEach(k => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-outline';
+        btn.innerText = k;
+        btn.onclick = () => startQuiz(k);
+        container.appendChild(btn);
+    });
+}
+
+function startQuiz(k) {
+    soalAktif = k === 'Semua Topik' ? [...databaseSoal].sort(() => Math.random() - 0.5) : databaseSoal.filter(s => s.kategori === k);
+    indeksSoal = 0; 
+    jawabanUser = new Array(soalAktif.length).fill(""); 
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none'; 
+    document.getElementById('quiz-screen').style.display = 'block';
+    document.getElementById('current-category-text').innerText = k;
+    renderSoal();
+}
+
+function renderSoal() {
+    const s = soalAktif[indeksSoal];
+    document.getElementById('question-counter').innerText = `Soal ${indeksSoal + 1} / ${soalAktif.length}`;
+    document.getElementById('progress-bar').style.width = `${((indeksSoal + 1) / soalAktif.length) * 100}%`;
+    document.getElementById('question-text').innerText = s.pertanyaan;
+    
+    const container = document.getElementById('answer-container');
+    container.innerHTML = '';
+
+    if (s.tipe === 'pg') {
+        const div = document.createElement('div');
+        div.className = 'options-list';
+        s.pilihan.forEach(o => {
+            const lbl = document.createElement('label'); 
+            lbl.className = 'option-item' + (jawabanUser[indeksSoal] === o ? ' selected' : '');
+            lbl.innerHTML = `<input type="radio" name="opt" ${jawabanUser[indeksSoal] === o ? 'checked' : ''}> ${o}`;
+            lbl.onclick = () => {
+                jawabanUser[indeksSoal] = o;
+                renderSoal(); 
+            };
+            div.appendChild(lbl);
+        });
+        container.appendChild(div);
+    } else {
+        const txt = document.createElement('textarea');
+        txt.className = 'essay-area';
+        txt.placeholder = 'Tuliskan jawaban Anda di sini...';
+        txt.value = jawabanUser[indeksSoal];
+        txt.oninput = (e) => { jawabanUser[indeksSoal] = e.target.value; };
+        container.appendChild(txt);
+    }
+
+    document.getElementById('btn-prev').style.display = indeksSoal === 0 ? 'none' : 'block';
+    document.getElementById('btn-next').style.display = indeksSoal === soalAktif.length - 1 ? 'none' : 'block';
+}
+
+function nextQuestion() { if (indeksSoal < soalAktif.length - 1) { indeksSoal++; renderSoal(); } }
+function prevQuestion() { if (indeksSoal > 0) { indeksSoal--; renderSoal(); } }
+
+function showResults() {
+    const belum = jawabanUser.filter(j => j === "").length;
+    if (belum > 0) {
+        if (!confirm(`Masih ada ${belum} soal belum diisi. Tetap ingin mengakhiri dan lihat hasil?`)) return;
+    }
+
+    document.getElementById('quiz-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'block';
+    
+    let skor = 0;
+    let pgTotal = 0;
+    const rev = document.getElementById('review-container'); rev.innerHTML = '';
+    
+    soalAktif.forEach((s, i) => {
+        const u = jawabanUser[i];
+        const card = document.createElement('div'); card.className = 'review-card';
+        
+        if(s.tipe === 'pg') {
+            pgTotal++;
+            let isWrong = u !== s.kunci_jawaban;
+            if (isWrong) card.classList.add('wrong-pg');
+            if (!isWrong && u !== "") skor++;
+            
+            card.innerHTML = `
+                <div>
+                    <span class="review-badge">${s.tipe.toUpperCase()}</span>
+                    <span style="font-weight:bold">${i+1}. ${s.pertanyaan}</span>
+                </div>
+                <div class="ans-user">${u === "" ? "Tidak diisi" : u} ${u === "" ? "" : (isWrong ? '<span style="color:red; font-weight:bold"> (Salah)</span>' : '<span style="color:green; font-weight:bold"> (Benar)</span>')}</div>
+                <div style="font-size:12px; color:#666; margin-top:10px">Jawaban Kunci:</div>
+                <div class="ans-ref">${s.kunci_jawaban}</div>
+            `;
+        } else {
+            card.innerHTML = `
+                <div>
+                    <span class="review-badge">ESSAY</span>
+                    <span style="font-weight:bold">${i+1}. ${s.pertanyaan}</span>
+                </div>
+                <div style="font-size:12px; color:#666; margin-top:15px;">Jawaban Anda:</div>
+                <div class="ans-user" style="white-space: pre-wrap;">${u === "" ? "Tidak diisi" : u}</div>
+                <div style="font-size:12px; color:#666; margin-top:10px">Referensi Jawaban Kunci:</div>
+                <div class="ans-ref">${s.kunci_jawaban}</div>
+            `;
+        }
+        rev.appendChild(card);
+    });
+    
+    document.getElementById('score-category-name').innerText = document.getElementById('current-category-text').innerText;
+    document.getElementById('score-text-total').innerText = `${skor} / ${pgTotal}`;
+    window.scrollTo(0,0);
+}
+
+initMenu();
+</script>
+</body>
+</html>
